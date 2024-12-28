@@ -57,7 +57,8 @@ async def start(ctx):
 async def place_ship(ctx, mode: str = discord.Option(str, "Choose placement mode", choices=["manual", "random"]), start: str = None, end: str = None):
     global ships, game_started
     if not game_started:
-        await ctx.respond("You need to start a game first using /start command.", ephemeral=True)
+        embed = discord.Embed(title="You need to start a game first", color=discord.Color.red())
+        await ctx.send(embed=embed)
         return
     if mode == "random":
         ai.place_ships(player_board, player_ships)
@@ -66,17 +67,20 @@ async def place_ship(ctx, mode: str = discord.Option(str, "Choose placement mode
         await ctx.send(embed=embed)
         return
     if not start or not end:
-        await ctx.respond("You need to provide start and end positions for the ship.", ephemeral=True)
+        embed = discord.Embed(title="You need to provide start and end coordinates", color=discord.Color.red())
+        await ctx.send(embed=embed)
         return
-    start_x, start_y = map(int, start.split(","))
-    end_x, end_y = map(int, end.split(","))
+    start_x, start_y = convert_coordinates(start)
+    end_x, end_y = convert_coordinates(end)
     length = max(abs(end_x - start_x), abs(end_y - start_y)) + 1
     if length not in ships:
-        await ctx.respond(f"Invalid ship length. Available lengths: {ships}", ephemeral=True)
+        embed = discord.Embed(title="Invalid ship length", color=discord.Color.red())
+        await ctx.send(embed=embed)
         return
     horizontal = start_x == end_x
     if not ai.is_valid_position(player_board, start_x, start_y, length, horizontal):
-        await ctx.respond("Invalid position for the ship. It overlaps with another ship or is out of bounds.", ephemeral=True)
+        embed = discord.Embed(title="Invalid position", color=discord.Color.red())
+        await ctx.send(embed=embed)
         return
     ship_positions = []
     if horizontal:
@@ -117,11 +121,11 @@ async def move(ctx, coord: str):
             if (x, y) in positions:
                 if ai.is_ship_sunk(positions, computer_board):
                     ai.mark_surrounding_cells_as_miss(positions, computer_board)
-                    embed = discord.Embed(title="You destroyed a ship!", color=discord.Color.red()); embed.add_field(name="Your move", value=result); embed.add_field(name="AI board", value=f"```json\n{ai.print_computer_board()}\n```")
+                    embed = discord.Embed(title="You destroyed a ship!", color=discord.Color.red()); embed.add_field(name="Your move", value=result); embed.add_field(name="AI board", value=f"```json\n{ai.print_computer_board(computer_board)}\n```")
                     await ctx.send(embed=embed)
                     if ai.all_ships_destroyed(computer_ships, computer_board):
                         ai.update_stats(player_name, "win")
-                        embed = discord.Embed(title="You win!", color=discord.Color.dark_green()); embed.add_field(name="Your move", value=result); embed.add_field(name="Your board", value=f"```json\n{ai.print_board(player_board)}\n```"); embed.add_field(name="AI board", value=f"```json\n{ai.print_computer_board()}\n```")
+                        embed = discord.Embed(title="You win!", color=discord.Color.dark_green()); embed.add_field(name="Your move", value=result); embed.add_field(name="Your board", value=f"```json\n{ai.print_board(player_board)}\n```"); embed.add_field(name="AI board", value=f"```json\n{ai.print_computer_board(computer_board)}\n```")
                         await ctx.send(embed=embed)
                         ai_hits_positions.clear()
                         ai_moves.clear()
@@ -131,7 +135,7 @@ async def move(ctx, coord: str):
                         computer_ships.clear()
                         return
                 else:
-                    embed = discord.Embed(title="You hit a ship!", color=discord.Color.orange()); embed.add_field(name="Your move", value=result); embed.add_field(name="AI board", value=f"```json\n{ai.print_computer_board()}\n```")
+                    embed = discord.Embed(title="You hit a ship!", color=discord.Color.orange()); embed.add_field(name="Your move", value=result); embed.add_field(name="AI board", value=f"```json\n{ai.print_computer_board(computer_board)}\n```")
                     await ctx.send(embed=embed)
                 break
     else:

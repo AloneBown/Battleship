@@ -1,23 +1,17 @@
-## Battleship Bot
+# Battleship Game
 
-### Project Description
+Welcome to the Battleship Game! This is Pycord-based bot for Discord, a classic implementation of the Battleship game.
 
-This project is a **Battleship game bot** implementation where the bot plays against a user. The bot makes moves, detects hits and misses, and keeps track of the game board's state.
+### Prerequisites
 
-### Key Features
+- Python 3.x installed on your machine
+- Requirement packages: [PyYaml](https://pyyaml.org/wiki/PyYAMLDocumentation), [Pycord](https://github.com/Pycord-Development/pycord)
+   ```
 
-1. **AI Moves**:  
-   - The bot analyzes the game board and makes strategic moves to find and sink ships.
-   - After a hit, the bot continues targeting adjacent cells until the ship is destroyed.
+## Contributing
 
-2. **Game Status Updates**:  
-   - Displays the results of each move (hit, miss, or ship destroyed).
-   - Checks for victory conditions and ends the game accordingly.
+Contributions are welcome! Please fork the repository and create a pull request with your changes.
 
-3. **Statisctics**:  
-   - Bot records player wins and loses to .json file, from which it can be shown to the player with command
+## License
 
-### Requirements
-
-- **Python 3.x**
-- **discord.py** and **pycord** library's for Discord bot interaction.
+This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.

@@ -1,3 +1,14 @@
+# Copyrighting (C) 2024 by AloneBown
+#
+# <-This code is free software; 
+# you can redistribute it and/or modify it under the terms of the license
+# This code is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.->
+#  
+# See GNU General Public License v3.0 for more information.
+# You should receive a copy of it with code or visit https://www.gnu.org/licenses/gpl-3.0.html
+# (do not remove this notice)
+
 import discord, random, asyncio, json
 
 class AI:
@@ -87,7 +98,7 @@ class AI:
                 await asyncio.sleep(random.uniform(1, 3))
                 ai_x, ai_y = self.ai_hits_positions[-1]
                 possible_moves = [(ai_x + dx, ai_y + dy) for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]]
-                possible_moves = [(x, y) for x, y in possible_moves if 0 <= x < board_size and 0 <= y < board_size and player_board[x][y] not in [hit_cell, miss_cell]]
+                possible_moves = [(x, y) for x, y in possible_moves if 0 <= x < board_size and 0 <= y < board_size and player_board[x][y] not in [hit_cell, miss_cell] and (x, y) not in self.ai_moves]
                 if possible_moves:
                     ai_x, ai_y = random.choice(possible_moves)
                     print(f"AI move: {ai_x}, {ai_y}")

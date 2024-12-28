@@ -1,3 +1,14 @@
+# Copyrighting (C) 2024 by AloneBown
+#
+# <-This code is free software; 
+# you can redistribute it and/or modify it under the terms of the license
+# This code is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.->
+#  
+# See GNU General Public License v3.0 for more information.
+# You should receive a copy of it with code or visit https://www.gnu.org/licenses/gpl-3.0.html
+# (do not remove this notice)
+
 import random
 
 class Admiral:
