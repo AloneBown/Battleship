@@ -1,3 +1,4 @@
 config.yml
 stats.json
 .gitignore
+.vscode/
