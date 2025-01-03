@@ -12,6 +12,7 @@
 import discord, yaml
 from bs_resourses.AI import AI
 from bs_resourses.lists import Lists
+from bs_resourses.utils import Stats
 
 intents = discord.Intents.default(); intents.members = True; bot = discord.Bot(intents=intents)
 
@@ -28,12 +29,13 @@ player_board = create_board(); computer_board = create_board(); player_hits = 0;
 
 ai = AI(board_size, empty_cell, ship_cell, hit_cell, miss_cell, player_board, ships=ships, player_ships=player_ships, computer_ships=computer_ships,)
 lists = Lists()
+statts = Stats()
 
 def convert_coordinates(coord):
     letter_to_index = lambda c: ord(c.lower()) - ord('a'); x = letter_to_index(coord[0]); y = int(coord[1:]) - 1
     return x, y
 
-    
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -131,7 +133,7 @@ async def move(ctx, coord: str):
                         embed = discord.Embed(title="You destroyed a ship!", color=discord.Color.red()); embed.add_field(name="Your move", value=result); embed.add_field(name="AI board", value=f"```json\n{ai.print_computer_board(computer_board)}\n```")
                         await ctx.send(embed=embed)
                         if ai.all_ships_destroyed(computer_ships, computer_board):
-                            ai.update_stats(player_name, "win")
+                            statts.update_stats(player_name, "win")
                             embed = discord.Embed(title="You win!", color=discord.Color.dark_green()); embed.add_field(name="Your move", value=result); embed.add_field(name="Your board", value=f"```json\n{ai.print_board(player_board)}\n```"); embed.add_field(name="AI board", value=f"```json\n{ai.print_computer_board(computer_board)}\n```")
                             await ctx.send(embed=embed)
                             ai_hits_positions.clear(); ai_moves.clear(); ai_hits = 0
@@ -151,7 +153,7 @@ async def move(ctx, coord: str):
 
 @bot.slash_command(name="stats", description="Display statistics")
 async def stats(ctx):
-    embed = ai.display_stats()
+    embed = statts.display_stats()
     await ctx.send(embed=embed)
 
 bot.run(TOKEN)

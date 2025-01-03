@@ -9,8 +9,10 @@
 # You should receive a copy of it with code or visit https://www.gnu.org/licenses/gpl-3.0.html
 # (do not remove this notice)
 
-import discord, random, asyncio, json, os
+import discord, random, asyncio
+from bs_resourses.utils import Stats
 
+stats = Stats()
 class AI:
     def __init__(self, board_size, empty_cell, ship_cell, hit_cell, miss_cell, player_board, ships, player_ships, computer_ships):
         self.board_size = board_size; self.ships = ships; self.player_ships = player_ships; self.computer_ships = computer_ships
@@ -127,7 +129,7 @@ class AI:
                             embed = discord.Embed(title="AI destroyed your ship!", color=discord.Color.red()); embed.add_field(name="AI move", value=ai_result); embed.add_field(name="Your board", value=f"```json\n{self.print_board(player_board)}\n```")
                             await ctx.send(embed=embed)
                             if self.all_ships_destroyed(player_ships, player_board):
-                                self.update_stats(player_name, "lose")
+                                stats.update_stats(player_name, "lose")
                                 embed = discord.Embed(title="AI wins!", color=discord.Color.dark_red()); embed.add_field(name="AI move", value=ai_result); embed.add_field(name="Your board", value=f"```json\n{self.print_board(player_board)}\n```"); embed.add_field(name="AI board", value=f"```json\n{self.print_computer_board()}\n```")
                                 await ctx.send(embed=embed)
                                 self.ai_moves.clear(); self.ai_hits = 0; self.player_hits = 0
@@ -144,33 +146,4 @@ class AI:
                     await ctx.send(embed=embed)
                     break
             else:
-                continue
-
-    def load_stats(self):
-        stats_file = 'stats.json'
-        if not os.path.exists(stats_file) or os.path.getsize(stats_file) == 0:
-            return {}
-        with open(stats_file, 'r') as file:
-            return json.load(file)
-
-    def update_stats(self, player_name, result):
-        stats = self.load_stats()
-        if player_name not in stats:
-            stats[player_name] = {'wins': 0, 'losses': 0}
-        stats[player_name][result] += 1
-        with open('stats.json', 'w') as file:
-            json.dump(stats, file)
-
-    def save_stats(self, stats):
-        with open("stats.json", "w") as file:
-            json.dump(stats, file, indent=4)   
-    
-    def display_stats(self):
-        stats = self.load_stats(); embed = discord.Embed(title="Player Statistics", color=discord.Color.blue())
-        for player, data in stats.items():
-            win_ratio = data["wins"] / (data["wins"] + data["losses"]) if (data["wins"] + data["losses"]) > 0 else 0
-            embed.add_field(name=player, value=f"Wins: {data['wins']}, Losses: {data['losses']}, Win Ratio: {win_ratio:.2f}", inline=False)
-        return embed
-
-
-        
+                continue     
