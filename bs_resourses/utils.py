@@ -15,7 +15,10 @@ class Stats:
         stats = self.load_stats()
         if player_name not in stats:
             stats[player_name] = {'wins': 0, 'losses': 0}
-        stats[player_name][result] += 1
+        if result == "win":
+            stats[player_name]['wins'] += 1
+        elif result == "loss":
+            stats[player_name]['losses'] += 1
         with open('stats.json', 'w') as file:
             json.dump(stats, file)
 

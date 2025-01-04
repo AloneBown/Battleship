@@ -35,7 +35,7 @@ class AI:
             if not is_within_bounds(nx, ny) or board[nx][ny] != self.empty_cell or not is_surrounding_cells_empty(nx, ny):
                 return False
         return True
-
+    
     def place_ships(self, board, ships_dict):
         def place_ship(x, y, length, horizontal):
             ship_positions = []
@@ -144,6 +144,6 @@ class AI:
                     self.ai_hits = 0
                     embed = discord.Embed(title="We and the enemy finish our turns", color=discord.Color.blue()); embed.add_field(name="Your move", value=result); embed.add_field(name="AI move", value=ai_result); embed.add_field(name="Your board", value=f"```json\n{self.print_board(player_board)}\n```"); embed.add_field(name="AI board", value=f"```json\n{self.print_computer_board(computer_board)}\n```")
                     await ctx.send(embed=embed)
-                    break
+                    return "miss"             
             else:
                 continue     

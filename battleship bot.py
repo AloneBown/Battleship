@@ -25,9 +25,9 @@ board_size = 10; empty_cell = "O"; ship_cell = "P"; hit_cell = "U"; miss_cell = 
 def create_board():
     return [[empty_cell for _ in range(board_size)] for _ in range(board_size)]
 
-player_board = create_board(); computer_board = create_board(); player_hits = 0; ai_hits = 0; game_started = False; player_ships = {}; computer_ships = {}
+player_board = create_board(); computer_board = create_board(); player_hits = 0; ai_hits = 0; game_started = False; player_ships = {}; computer_ships = {}; player_move = True
 
-ai = AI(board_size, empty_cell, ship_cell, hit_cell, miss_cell, player_board, ships=ships, player_ships=player_ships, computer_ships=computer_ships,)
+ai = AI(board_size, empty_cell, ship_cell, hit_cell, miss_cell, player_board, ships=ships, player_ships=player_ships, computer_ships=computer_ships)
 lists = Lists()
 statts = Stats()
 
@@ -99,11 +99,36 @@ async def place_ship(ctx, mode: str = discord.Option(str, "Choose placement mode
 
 @bot.slash_command(name="move", description="Make a move in Battleship")
 async def move(ctx, coord: str):
-    global ai_last_hit, player_hits, ai_hits, ai_hits_positions, player_moves, ai_moves
+    global ai_last_hit, player_hits, ai_hits, ai_hits_positions, player_moves, ai_moves, player_move
     player_name = str(ctx.author.name)
     if not game_started:
         embed = discord.Embed(title="You need to start a game first", color=discord.Color.red())
         await ctx.send(embed=embed)
+        return
+    elif player_move == False:
+        embed = discord.Embed(title="It's not your turn", color=discord.Color.red())
+        await ctx.send(embed=embed)
+        return
+    if coord == "debug":
+        for x in range(board_size):
+            for y in range(board_size):
+                if computer_board[x][y] == ship_cell:
+                    player_hits += 1; 
+                    computer_board[x][y] = hit_cell
+                    ships_to_check = list(computer_ships.items())
+                    for ship, positions in ships_to_check:
+                        if (x, y) in positions:
+                            if ai.is_ship_sunk(ship, positions, computer_board, computer_ships):
+                                ai.mark_surrounding_cells_as_miss(positions, computer_board)
+
+        embed = discord.Embed(title="Debug mode: All AI ships have been hit!", color=discord.Color.green())
+        await ctx.send(embed=embed)
+        if ai.all_ships_destroyed(computer_ships, computer_board):
+            statts.update_stats(player_name, "win")
+            embed = discord.Embed(title="You win!", color=discord.Color.dark_green()); embed.add_field(name="Your move", value="Debug mode victory"); embed.add_field(name="Your board", value=f"```json\n{ai.print_board(player_board)}\n```"); embed.add_field(name="AI board", value=f"```json\n{ai.print_computer_board(computer_board)}\n```")
+            await ctx.send(embed=embed)
+            ai_hits_positions.clear(); ai_moves.clear(); ai_hits = 0
+            player_hits = 0; player_ships.clear(); computer_ships.clear()
         return
     try:
         x, y = convert_coordinates(coord)
@@ -148,8 +173,11 @@ async def move(ctx, coord: str):
         result = f"Miss! (Player hits: {player_hits})"
         embed = discord.Embed(title="Fire!", color=discord.Color.blue())
         ctx.send(embed=embed)
+        player_move = False
         player_hits = 0
-        await ai.ai_move(ctx, result, player_name, player_board, player_ships, board_size, hit_cell, miss_cell, ship_cell, empty_cell, computer_ships, computer_board)
+        ai_result = await ai.ai_move(ctx, result, player_name, player_board, player_ships, board_size, hit_cell, miss_cell, ship_cell, empty_cell, computer_ships, computer_board)
+        if ai_result == "miss":
+            player_move = True
 
 @bot.slash_command(name="stats", description="Display statistics")
 async def stats(ctx):
